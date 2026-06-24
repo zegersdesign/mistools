@@ -3,8 +3,7 @@ import subprocess, json, os, re, webbrowser, threading
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-USER    = os.environ.get('USERPROFILE', 'C:\\Users\\Default')
-SCRIPTS = os.path.join(USER, 'Scripts')
+SCRIPTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
 
 TOOLS = [
     {
