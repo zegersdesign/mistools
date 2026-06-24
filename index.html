@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>MisTools</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg:      #0f0f11;
+  --surf:    #18181b;
+  --surf2:   #1f1f23;
+  --border:  #2a2a30;
+  --text:    #e4e4e7;
+  --muted:   #71717a;
+  --purple:  #7c6ff7;
+  --teal:    #2dd4aa;
+  --amber:   #f59e0b;
+  --coral:   #f87171;
+  --blue:    #60a5fa;
+  --green:   #4ade80;
+  --red:     #f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+.topbar{display:flex;align-items:center;gap:12px;padding:0 20px;height:52px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo{width:32px;height:32px;border-radius:8px;background:var(--purple);display:flex;align-items:center;justify-content:center}
+.logo i{color:#fff;font-size:17px}
+.app-name{font-size:15px;font-weight:600}
+.app-sub{font-size:11px;color:var(--muted)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:auto;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.live-label{font-size:11px;color:var(--muted);margin-right:6px}
+
+.layout{display:flex;flex:1;overflow:hidden}
+
+.sidebar{width:195px;background:var(--surf);border-right:1px solid var(--border);padding:10px 0;flex-shrink:0;display:flex;flex-direction:column}
+.nav-sec{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:13px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:all .12s}
+.nav-item:hover{color:var(--text);background:var(--surf2)}
+.nav-item.active{color:var(--purple);background:rgba(124,111,247,.1);border-left-color:var(--purple)}
+.nav-item i{font-size:16px}
+.sidebar-foot{margin-top:auto;border-top:1px solid var(--border);padding:12px 16px;font-size:11px;color:var(--muted)}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-top{padding:18px 24px 0;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between}
+.main-top h1{font-size:18px;font-weight:600}
+.main-top p{font-size:12px;color:var(--muted);margin-top:2px}
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;padding:14px 24px;overflow-y:auto;flex:1}
+
+.card{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .1s}
+.card:hover{border-color:#38383f;transform:translateY(-1px)}
+.card.running{border-color:var(--purple);box-shadow:0 0 0 1px rgba(124,111,247,.2)}
+.card-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon i{font-size:19px}
+.i-purple{background:rgba(124,111,247,.15)}.i-purple i{color:var(--purple)}
+.i-teal{background:rgba(45,212,170,.12)}.i-teal i{color:var(--teal)}
+.i-amber{background:rgba(245,158,11,.12)}.i-amber i{color:var(--amber)}
+.i-coral{background:rgba(248,113,113,.12)}.i-coral i{color:var(--coral)}
+.i-blue{background:rgba(96,165,250,.12)}.i-blue i{color:var(--blue)}
+.card-name{font-size:13px;font-weight:600}
+.card-desc{font-size:11px;color:var(--muted);line-height:1.5;flex:1}
+.btn-run{width:100%;padding:7px 0;border-radius:7px;border:1px solid rgba(124,111,247,.4);background:rgba(124,111,247,.08);color:var(--purple);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-run:hover:not(:disabled){background:var(--purple);color:#fff;border-color:var(--purple)}
+.btn-run:disabled{opacity:.45;cursor:default}
+.spin{width:11px;height:11px;border:2px solid rgba(124,111,247,.25);border-top-color:var(--purple);border-radius:50%;animation:spin .55s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TERMINAL */
+.term-wrap{flex-shrink:0;background:#0a0a0d;border-top:1px solid var(--border);display:flex;flex-direction:column;height:0;overflow:hidden;transition:height .25s ease}
+.term-wrap.open{height:300px}
+.term-head{display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.term-title{font-size:12px;font-weight:600}
+.term-status{font-size:11px;color:var(--muted);margin-left:auto}
+.btn-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;display:flex;padding:2px;border-radius:4px}
+.btn-x:hover{color:var(--text);background:var(--surf2)}
+.term-body{flex:1;overflow-y:auto;padding:10px 14px;font-family:'Cascadia Code','Consolas',monospace;font-size:11.5px;line-height:1.75}
+
+/* Terminal line styles */
+.l-start{color:var(--purple);font-weight:600}
+.l-info{color:#a78bfa}
+.l-found{color:var(--text)}
+.l-file{color:var(--muted);padding-left:18px}
+.l-more{color:#52525b;padding-left:18px}
+.l-done{color:var(--green)}
+.l-clean{color:#52525b}
+.l-skip{color:#52525b;font-style:italic}
+.l-total{color:var(--purple);font-weight:600;margin-top:2px}
+.l-end{color:var(--green);font-weight:600}
+.l-error{color:var(--red)}
+.l-progress{color:#a78bfa;font-style:italic}
+.l-defender{color:var(--teal)}
+.l-defs{color:#52525b}
+.l-safe{color:var(--green);font-weight:600}
+.l-threat{color:var(--red);font-weight:600}
+.l-total-t{color:var(--purple);font-weight:600}
+.l-os{color:var(--blue);font-weight:600}
+.l-uptime{color:var(--muted)}
+.l-cpu{color:var(--amber)}
+.l-cpu-load{color:var(--amber)}
+.l-ram{color:var(--teal)}
+.l-disk{color:var(--blue)}
+.l-gpu{color:var(--purple)}
+.l-net{color:var(--green)}
+.l-ip{color:#52525b}
+.l-proc{color:var(--muted);padding-left:18px}
+.l-folder{color:var(--amber)}
+.l-scanning{color:#52525b;font-style:italic}
+.l-item{color:var(--text)}
+.l-items-total{color:var(--purple);font-weight:600}
+
+/* Progress bar for disk scanner */
+.prog-bar{height:3px;background:var(--surf2);border-radius:2px;margin:2px 0 4px;overflow:hidden}
+.prog-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .3s}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* DETAIL SECTION IN CARD */
+.card-detail{display:none;border-top:1px solid var(--border);margin-top:6px;padding-top:10px;font-size:11px;color:var(--muted);line-height:1.6}
+.card-detail.open{display:block}
+.detail-row{display:flex;gap:6px;margin-bottom:4px}
+.detail-row span:first-child{color:#52525b;flex-shrink:0}
+.btn-info{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 9px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;transition:all .12s;flex-shrink:0}
+.btn-info:hover{background:var(--surf2);color:var(--text)}
+.btn-info.active{color:var(--purple);border-color:rgba(124,111,247,.4)}
+.card-btns{display:flex;gap:7px;margin-top:4px}
+.card-btns .btn-run{flex:1}
+
+/* OPTIONS MODAL (shared) */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.hidden{display:none}
+.opts-panel{background:var(--surf);border:1px solid var(--border);border-radius:14px;width:520px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.opts-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.opts-head-icon{width:34px;height:34px;border-radius:8px;background:rgba(124,111,247,.15);display:flex;align-items:center;justify-content:center}
+.opts-head-icon i{font-size:18px;color:var(--purple)}
+.opts-head-title{font-size:15px;font-weight:600}
+.opts-head-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.opts-body{overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+.opts-group-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.opts-items{display:flex;flex-direction:column;gap:2px}
+.opt-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;cursor:pointer;transition:background .1s}
+.opt-row:hover{background:var(--surf2)}
+.opt-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);background:var(--surf2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.opt-check.checked{background:var(--purple);border-color:var(--purple)}
+.opt-check.checked::after{content:'';width:9px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block}
+.opt-name{font-size:13px;flex:1}
+.opt-desc{font-size:11px;color:var(--muted)}
+.opts-footer{border-top:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.btn-select-all{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0}
+.btn-select-all:hover{color:var(--text)}
+.btn-cancel{margin-left:auto;font-size:13px;color:var(--muted);background:none;border:1px solid var(--border);padding:8px 16px;border-radius:7px;cursor:pointer}
+.btn-cancel:hover{background:var(--surf2);color:var(--text)}
+.btn-clean{font-size:13px;font-weight:500;color:#fff;background:var(--purple);border:none;padding:8px 20px;border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .12s}
+.btn-clean:hover{background:#6b5ff5}
+.btn-clean:disabled{opacity:.4;cursor:default}
+.selected-count{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><i class="ti ti-tool"></i></div>
+  <div>
+    <div class="app-name">MisTools</div>
+    <div class="app-sub">by Pato &middot; hecho con Claude</div>
+  </div>
+  <div class="live-label" style="margin-left:auto">localhost:7777</div>
+  <div class="live-dot"></div>
+</div>
+
+<!-- CLEANER OPTIONS MODAL -->
+<div class="overlay hidden" id="cleaner-overlay" onclick="if(event.target===this)closeOpts()">
+  <div class="opts-panel">
+    <div class="opts-head">
+      <div class="opts-head-icon"><i class="ti ti-trash"></i></div>
+      <div>
+        <div class="opts-head-title">ClaudeCleaner — Opciones</div>
+        <div class="opts-head-sub">Selecciona qué quieres limpiar</div>
+      </div>
+    </div>
+    <div class="opts-body">
+
+      <div>
+        <div class="opts-group-label">Sistema</div>
+        <div class="opts-items">
+          <div class="opt-row" onclick="toggleOpt('temp_user')">
+            <div class="opt-check checked" id="chk-temp_user"></div>
+            <div class="opt-name">Temp usuario</div>
+            <div class="opt-desc">%TEMP% — archivos temporales de tu sesión</div>
+          </div>
+          <div class="opt-row" onclick="toggleOpt('temp_sys')">
+            <div class="opt-check checked" id="chk-temp_sys"></div>
+            <div class="opt-name">Temp sistema</div>
+            <div class="opt-desc">C:\Windows\Temp — temporales del sistema</div>
+          </div>
+          <div class="opt-row" onclick="toggleOpt('prefetch')">
+            <div class="opt-check checked" id="chk-prefetch"></div>
+            <div class="opt-name">Prefetch</div>
+            <div class="opt-desc">Datos de precarga de apps (se regeneran solos)</div>
+          </div>
+          <div class="opt-row" onclick="toggleOpt('winupdate')">
+            <div class="opt-check checked" id="chk-winupdate"></div>
+            <div class="opt-name">Windows Update cache</div>
+            <div class="opt-desc">Instaladores de actualizaciones ya aplicadas</div>
+          </div>
+          <div class="opt-row" onclick="toggleOpt('minidumps')">
+            <div class="opt-check" id="chk-minidumps"></div>
+            <div class="opt-name">Minidumps</div>
+            <div class="opt-desc">Reportes de crash — seguros de borrar</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="opts-group-label">Browsers</div>
+        <div class="opts-items">
+          <div class="opt-row" onclick="toggleOpt('chrome')">
+            <div class="opt-check checked" id="chk-chrome"></div>
+            <div class="opt-name">Chrome cache</div>
+            <div class="opt-desc">Archivos temporales de Google Chrome</div>
+          </div>
+          <div class="opt-row" onclick="toggleOpt('edge')">
+            <div class="opt-check checked" id="chk-edge"></div>
+            <div class="opt-name">Edge cache</div>
+            <div class="opt-desc">Archivos temporales de Microsoft Edge</div>
+          </div>
+          <div class="opt-row" onclick="toggleOpt('firefox')">
+            <div class="opt-check" id="chk-firefox"></div>
+            <div class="opt-name">Firefox cache</div>
+            <div class="opt-desc">Archivos temporales de Mozilla Firefox</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="opts-group-label">Otros</div>
+        <div class="opts-items">
+          <div class="opt-row" onclick="toggleOpt('thumbs')">
+            <div class="opt-check checked" id="chk-thumbs"></div>
+            <div class="opt-name">Thumbnails cache</div>
+            <div class="opt-desc">Miniaturas de imágenes guardadas por el Explorer</div>
+          </div>
+          <div class="opt-row" onclick="toggleOpt('recycle')">
+            <div class="opt-check checked" id="chk-recycle"></div>
+            <div class="opt-name">Papelera de reciclaje</div>
+            <div class="opt-desc">Vacía la papelera completamente</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="opts-footer">
+      <button class="btn-select-all" onclick="selectAll()">Seleccionar todo</button>
+      <button class="btn-select-all" onclick="selectNone()" style="margin-left:8px">Ninguno</button>
+      <span class="selected-count" id="sel-count"></span>
+      <button class="btn-cancel" onclick="closeOpts()">Cancelar</button>
+      <button class="btn-clean" id="btn-run-clean" onclick="runCleaner()">
+        <i class="ti ti-player-play" style="font-size:13px"></i> Limpiar seleccionados
+      </button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ANTIMALWARE OPTIONS MODAL -->
+<div class="overlay hidden" id="antimalware-overlay" onclick="if(event.target===this)closeOpts()">
+  <div class="opts-panel">
+    <div class="opts-head">
+      <div class="opts-head-icon" style="background:rgba(45,212,170,.12)"><i class="ti ti-shield-check" style="color:var(--teal)"></i></div>
+      <div>
+        <div class="opts-head-title">Claude Antimalware — Opciones</div>
+        <div class="opts-head-sub">Configura el tipo de escaneo</div>
+      </div>
+    </div>
+    <div class="opts-body">
+      <div>
+        <div class="opts-group-label">Tipo de escaneo</div>
+        <div class="opts-items">
+          <div class="opt-row" onclick="setScanType('QuickScan')">
+            <div class="opt-check checked" id="scan-QuickScan"></div>
+            <div><div class="opt-name">Quick Scan <span style="font-size:10px;color:var(--teal);margin-left:6px">~2-5 min</span></div>
+            <div class="opt-desc">Escanea memoria RAM, procesos activos y carpetas críticas. Detecta el 95% de amenazas comunes.</div></div>
+          </div>
+          <div class="opt-row" onclick="setScanType('FullScan')">
+            <div class="opt-check" id="scan-FullScan"></div>
+            <div><div class="opt-name">Full Scan <span style="font-size:10px;color:var(--amber);margin-left:6px">puede tardar horas</span></div>
+            <div class="opt-desc">Escanea absolutamente todo el disco. Recomendado si sospechas una infección profunda.</div></div>
+          </div>
+          <div class="opt-row" onclick="setScanType('CustomScan')">
+            <div class="opt-check" id="scan-CustomScan"></div>
+            <div><div class="opt-name">Custom Scan <span style="font-size:10px;color:var(--muted);margin-left:6px">carpeta específica</span></div>
+            <div class="opt-desc">Escanea solo la carpeta que elijas. Útil para revisar descargas o USBs.</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="custom-path-row" style="display:none">
+        <div class="opts-group-label">Carpeta a escanear</div>
+        <input type="text" id="custom-path-input" placeholder="Ej: C:\Users\tu_usuario\Downloads"
+          style="width:100%;padding:8px 12px;background:var(--surf2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;outline:none">
+      </div>
+      <div>
+        <div class="opts-group-label">Info</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;padding:4px 0">
+          Usa <strong style="color:var(--text)">Windows Defender</strong> integrado en Windows — no instala nada externo.<br>
+          Si encuentra algo, ya lo cuarentenó automáticamente. El reporte es informativo.
+        </div>
+      </div>
+    </div>
+    <div class="opts-footer">
+      <button class="btn-cancel" onclick="closeOpts()">Cancelar</button>
+      <button class="btn-clean" style="background:var(--teal)" onclick="runAntimalware()">
+        <i class="ti ti-shield-check" style="font-size:13px"></i> Iniciar escaneo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DISK ANALYZER OPTIONS MODAL -->
+<div class="overlay hidden" id="diskanalyzer-overlay" onclick="if(event.target===this)closeOpts()">
+  <div class="opts-panel">
+    <div class="opts-head">
+      <div class="opts-head-icon" style="background:rgba(245,158,11,.12)"><i class="ti ti-chart-pie" style="color:var(--amber)"></i></div>
+      <div>
+        <div class="opts-head-title">Disk Analyzer — Opciones</div>
+        <div class="opts-head-sub">Elige qué disco analizar</div>
+      </div>
+    </div>
+    <div class="opts-body">
+      <div>
+        <div class="opts-group-label">Disco a analizar</div>
+        <div class="opts-items" id="disk-drive-list">
+          <div style="font-size:12px;color:var(--muted);padding:8px 0">Cargando discos disponibles...</div>
+        </div>
+      </div>
+      <div>
+        <div class="opts-group-label">Info</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;padding:4px 0">
+          Recorre la raíz del disco y muestra las <strong style="color:var(--text)">15 carpetas más pesadas</strong>.<br>
+          El análisis puede tardar 1-3 minutos dependiendo del tamaño del disco.
+        </div>
+      </div>
+    </div>
+    <div class="opts-footer">
+      <button class="btn-cancel" onclick="closeOpts()">Cancelar</button>
+      <button class="btn-clean" style="background:var(--amber);color:#000" onclick="runDiskAnalyzer()">
+        <i class="ti ti-chart-pie" style="font-size:13px"></i> Analizar disco
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- STARTUP OPTIONS MODAL -->
+<div class="overlay hidden" id="startup-overlay" onclick="if(event.target===this)closeOpts()">
+  <div class="opts-panel">
+    <div class="opts-head">
+      <div class="opts-head-icon" style="background:rgba(248,113,113,.12)"><i class="ti ti-player-play" style="color:var(--coral)"></i></div>
+      <div>
+        <div class="opts-head-title">Startup Manager — Opciones</div>
+        <div class="opts-head-sub">Filtra qué entradas de inicio ver</div>
+      </div>
+    </div>
+    <div class="opts-body">
+      <div>
+        <div class="opts-group-label">Mostrar</div>
+        <div class="opts-items">
+          <div class="opt-row" onclick="setStartupFilter('all')">
+            <div class="opt-check checked" id="sf-all"></div>
+            <div><div class="opt-name">Todo</div>
+            <div class="opt-desc">Entradas de usuario + sistema + WMI + carpetas de inicio</div></div>
+          </div>
+          <div class="opt-row" onclick="setStartupFilter('user')">
+            <div class="opt-check" id="sf-user"></div>
+            <div><div class="opt-name">Solo usuario</div>
+            <div class="opt-desc">Registro HKCU y carpeta Startup de tu perfil</div></div>
+          </div>
+          <div class="opt-row" onclick="setStartupFilter('system')">
+            <div class="opt-check" id="sf-system"></div>
+            <div><div class="opt-name">Solo sistema</div>
+            <div class="opt-desc">Registro HKLM, WMI y carpeta Startup global</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="opts-group-label">Info</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;padding:4px 0">
+          Lee el registro de Windows y carpetas de inicio.<br>
+          <strong style="color:var(--amber)">No elimina nada</strong> — solo muestra qué hay. Si quieres deshabilitar algo, hazlo desde el Administrador de tareas → pestaña Inicio.
+        </div>
+      </div>
+    </div>
+    <div class="opts-footer">
+      <button class="btn-cancel" onclick="closeOpts()">Cancelar</button>
+      <button class="btn-clean" style="background:var(--coral)" onclick="runStartup()">
+        <i class="ti ti-player-play" style="font-size:13px"></i> Ver entradas
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SYSINFO OPTIONS MODAL -->
+<div class="overlay hidden" id="sysinfo-overlay" onclick="if(event.target===this)closeOpts()">
+  <div class="opts-panel">
+    <div class="opts-head">
+      <div class="opts-head-icon" style="background:rgba(96,165,250,.12)"><i class="ti ti-cpu" style="color:var(--blue)"></i></div>
+      <div>
+        <div class="opts-head-title">System Info — Opciones</div>
+        <div class="opts-head-sub">Elige qué secciones mostrar</div>
+      </div>
+    </div>
+    <div class="opts-body">
+      <div>
+        <div class="opts-group-label">Secciones</div>
+        <div class="opts-items">
+          <div class="opt-row" onclick="toggleSI('os')"><div class="opt-check checked" id="si-os"></div><div class="opt-name">Sistema operativo</div></div>
+          <div class="opt-row" onclick="toggleSI('cpu')"><div class="opt-check checked" id="si-cpu"></div><div class="opt-name">CPU — núcleos, frecuencia y carga actual</div></div>
+          <div class="opt-row" onclick="toggleSI('ram')"><div class="opt-check checked" id="si-ram"></div><div class="opt-name">RAM — total, en uso y libre</div></div>
+          <div class="opt-row" onclick="toggleSI('gpu')"><div class="opt-check checked" id="si-gpu"></div><div class="opt-name">GPU — modelo y VRAM</div></div>
+          <div class="opt-row" onclick="toggleSI('disk')"><div class="opt-check checked" id="si-disk"></div><div class="opt-name">Discos — espacio usado/libre por unidad</div></div>
+          <div class="opt-row" onclick="toggleSI('net')"><div class="opt-check checked" id="si-net"></div><div class="opt-name">Red — adaptadores activos e IP pública</div></div>
+          <div class="opt-row" onclick="toggleSI('procs')"><div class="opt-check checked" id="si-procs"></div><div class="opt-name">Top 5 procesos por uso de CPU</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="opts-footer">
+      <button class="btn-select-all" onclick="siSelectAll()">Seleccionar todo</button>
+      <button class="btn-select-all" onclick="siSelectNone()" style="margin-left:8px">Ninguno</button>
+      <button class="btn-cancel" onclick="closeOpts()">Cancelar</button>
+      <button class="btn-clean" style="background:var(--blue)" onclick="runSysInfo()">
+        <i class="ti ti-cpu" style="font-size:13px"></i> Ver info
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-sec">Categorías</div>
+    <div class="nav-item active" onclick="setFilter('all',this)"><i class="ti ti-layout-grid"></i> Todas</div>
+    <div class="nav-item" onclick="setFilter('sistema',this)"><i class="ti ti-cpu"></i> Sistema</div>
+    <div class="nav-item" onclick="setFilter('seguridad',this)"><i class="ti ti-shield"></i> Seguridad</div>
+    <div class="nav-item" onclick="setFilter('archivos',this)"><i class="ti ti-folder"></i> Archivos</div>
+    <div class="nav-sec" style="margin-top:6px">Más</div>
+    <div class="nav-item" onclick="openLog()"><i class="ti ti-file-text"></i> Ver logs</div>
+    <div class="sidebar-foot" id="sf">Cargando...</div>
+  </div>
+
+  <div class="main">
+    <div class="main-top">
+      <div>
+        <h1 id="cat-title">Todas las herramientas</h1>
+        <p id="cat-sub">Cargando...</p>
+      </div>
+    </div>
+    <div class="tools-grid" id="grid"></div>
+
+    <div class="term-wrap" id="tw">
+      <div class="term-head">
+        <i class="ti ti-terminal-2" style="font-size:13px;color:var(--muted)"></i>
+        <div class="term-title" id="tt">Output</div>
+        <div class="term-status" id="ts"></div>
+        <button class="btn-x" onclick="closeTerm()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="term-body" id="tb"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let tools = [];
+let src = null;
+let currentFilter = 'all';
+let diskTotal = 0;
+
+async function init() {
+  try {
+    const res = await fetch('/tools');
+    tools = await res.json();
+    render(tools);
+    const ready = tools.filter(t => t.ready).length;
+    document.getElementById('cat-sub').textContent = `${tools.length} herramientas · ${ready} activas`;
+    document.getElementById('sf').textContent = `MisTools v1.0 · ${tools.length} tools`;
+  } catch {
+    document.getElementById('cat-sub').textContent = 'Error: servidor no disponible';
+    document.getElementById('grid').innerHTML =
+      `<div style="grid-column:1/-1;padding:40px 0;text-align:center;color:var(--muted)">
+        <div style="font-size:32px;margin-bottom:12px">⚠</div>
+        <div style="font-size:14px;margin-bottom:6px;color:var(--text)">El servidor no está corriendo</div>
+        <div style="font-size:12px">Cierra el browser y ejecuta <strong>iniciar.bat</strong> primero</div>
+        <div style="font-size:11px;margin-top:8px;color:#52525b">Luego vuelve a abrir http://localhost:7777</div>
+      </div>`;
+  }
+}
+
+function setFilter(cat, el) {
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = cat;
+  const titles = { all:'Todas las herramientas', sistema:'Sistema', seguridad:'Seguridad', archivos:'Archivos' };
+  document.getElementById('cat-title').textContent = titles[cat] || cat;
+  const filtered = cat === 'all' ? tools : tools.filter(t => t.category === cat);
+  render(filtered);
+}
+
+// ── TOOL DETAILS ───────────────────────────────────────────
+const DETAILS = {
+  cleaner: [
+    ['Qué hace', 'Elimina archivos temporales, cache de browsers y papelera que acumulan GB con el tiempo.'],
+    ['Es seguro', 'Sí. Todo lo que borra se regenera solo. No toca archivos personales.'],
+    ['Cuánto libera', 'Típicamente entre 500 MB y varios GB dependiendo del uso.'],
+    ['Frecuencia', 'Corre automático todos los días a las 10am via Tarea Programada.'],
+  ],
+  antimalware: [
+    ['Qué hace', 'Lanza Windows Defender desde la línea de comandos para escanear tu PC.'],
+    ['Quick Scan', 'Revisa RAM, procesos activos y carpetas críticas. ~2-5 minutos.'],
+    ['Full Scan', 'Escanea cada archivo del disco. Puede tardar horas. Recomendado mensual.'],
+    ['Si encuentra algo', 'Defender ya lo cuarentenó automáticamente. El reporte es informativo.'],
+    ['Requiere', 'Windows Defender activo. No instala nada externo.'],
+  ],
+  diskanalyzer: [
+    ['Qué hace', 'Recorre la raíz de un disco y mide cuánto pesa cada carpeta principal.'],
+    ['Resultado', 'Muestra un ranking de las 15 carpetas más pesadas con barra visual.'],
+    ['Cuánto tarda', '1-3 minutos dependiendo del tamaño del disco y velocidad del SSD/HDD.'],
+    ['No borra nada', 'Solo analiza y reporta. Tú decides qué hacer con la info.'],
+  ],
+  startup: [
+    ['Qué hace', 'Lee el Registro de Windows, WMI y carpetas de inicio para listar todo lo que arranca con el sistema.'],
+    ['Fuentes', 'HKCU Run, HKLM Run, RunOnce, carpetas Startup de usuario y sistema, WMI.'],
+    ['No modifica nada', 'Solo lectura. Para deshabilitar algo usa el Administrador de tareas → pestaña Inicio.'],
+    ['Útil para', 'Detectar programas que ralentizan el arranque o que no recuerdas haber instalado.'],
+  ],
+  sysinfo: [
+    ['Qué hace', 'Muestra un resumen completo del hardware y estado actual del sistema.'],
+    ['Incluye', 'OS, CPU con carga actual, RAM usada/libre, GPU, todos los discos, adaptadores de red, IP pública y top 5 procesos.'],
+    ['Cuándo usarlo', 'Para diagnosticar lentitud, ver cuánta RAM queda libre o identificar procesos pesados.'],
+    ['Tiempo', 'Resultado inmediato, menos de 10 segundos.'],
+  ],
+};
+
+function render(list) {
+  const g = document.getElementById('grid');
+  g.innerHTML = '';
+  list.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.id = 'card-' + t.id;
+    const rows = (DETAILS[t.id] || []).map(([k,v]) =>
+      `<div class="detail-row"><span>${k}:</span><span>${v}</span></div>`
+    ).join('');
+    d.innerHTML = `
+      <div class="card-icon i-${t.color}"><i class="ti ${t.icon}"></i></div>
+      <div class="card-name">${t.name}</div>
+      <div class="card-desc">${t.desc}</div>
+      <div class="card-btns">
+        <button class="btn-run" id="btn-${t.id}" onclick="openOpts('${t.id}','${t.name}')">
+          <i class="ti ti-sliders" style="font-size:12px"></i> Opciones
+        </button>
+        <button class="btn-info" id="info-${t.id}" onclick="toggleDetail('${t.id}')">
+          <i class="ti ti-info-circle" style="font-size:13px"></i> Detalles
+        </button>
+      </div>
+      <div class="card-detail" id="detail-${t.id}">${rows}</div>`;
+    g.appendChild(d);
+  });
+}
+
+function toggleDetail(id) {
+  const det = document.getElementById('detail-' + id);
+  const btn = document.getElementById('info-' + id);
+  det.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+
+function openOpts(id, name) {
+  const fns = { cleaner: openCleanerOpts, antimalware: openAntimalwareOpts,
+                 diskanalyzer: openDiskOpts, startup: openStartupOpts, sysinfo: openSysInfoOpts };
+  if (fns[id]) fns[id]();
+  else run(id, name);
+}
+
+function closeOpts() {
+  document.querySelectorAll('.overlay').forEach(o => o.classList.add('hidden'));
+}
+
+// ── CLEANER ────────────────────────────────────────────────
+const ALL_ZONES = ['temp_user','temp_sys','prefetch','winupdate','minidumps','chrome','edge','firefox','thumbs','recycle'];
+let checked = new Set(['temp_user','temp_sys','prefetch','winupdate','chrome','edge','thumbs','recycle']);
+
+function openCleanerOpts() {
+  ALL_ZONES.forEach(z => {
+    const el = document.getElementById('chk-' + z);
+    if (el) el.classList.toggle('checked', checked.has(z));
+  });
+  updateCount();
+  document.getElementById('cleaner-overlay').classList.remove('hidden');
+}
+function toggleOpt(zone) {
+  checked.has(zone) ? checked.delete(zone) : checked.add(zone);
+  const el = document.getElementById('chk-' + zone);
+  if (el) el.classList.toggle('checked', checked.has(zone));
+  updateCount();
+}
+function selectAll()  { checked = new Set(ALL_ZONES); ALL_ZONES.forEach(z => document.getElementById('chk-'+z)?.classList.add('checked'));    updateCount(); }
+function selectNone() { checked = new Set();           ALL_ZONES.forEach(z => document.getElementById('chk-'+z)?.classList.remove('checked')); updateCount(); }
+function updateCount() {
+  document.getElementById('sel-count').textContent = `${checked.size} seleccionadas`;
+  document.getElementById('btn-run-clean').disabled = checked.size === 0;
+}
+function runCleaner() { closeOpts(); run('cleaner','ClaudeCleaner',[...checked].join(',')); }
+
+// ── ANTIMALWARE ────────────────────────────────────────────
+let scanType = 'QuickScan';
+function openAntimalwareOpts() { document.getElementById('antimalware-overlay').classList.remove('hidden'); }
+function setScanType(t) {
+  scanType = t;
+  ['QuickScan','FullScan','CustomScan'].forEach(s => {
+    document.getElementById('scan-'+s)?.classList.toggle('checked', s === t);
+  });
+  document.getElementById('custom-path-row').style.display = t === 'CustomScan' ? 'block' : 'none';
+}
+function runAntimalware() {
+  closeOpts();
+  const cp = document.getElementById('custom-path-input')?.value || '';
+  let url = `/run/antimalware?scantype=${scanType}`;
+  if (cp) url += `&custompath=${encodeURIComponent(cp)}`;
+  runWithUrl('antimalware','Claude Antimalware', url);
+}
+
+// ── DISK ANALYZER ──────────────────────────────────────────
+let selectedDrive = 'C';
+function openDiskOpts() {
+  loadDrives();
+  document.getElementById('diskanalyzer-overlay').classList.remove('hidden');
+}
+async function loadDrives() {
+  const list = document.getElementById('disk-drive-list');
+  try {
+    const res = await fetch('/drives');
+    const drives = await res.json();
+    list.innerHTML = drives.map(d =>
+      `<div class="opt-row" onclick="selectDrive('${d.letter}',this)">
+        <div class="opt-check ${d.letter===selectedDrive?'checked':''}" id="drv-${d.letter}"></div>
+        <div><div class="opt-name">Disco ${d.letter}: <span style="font-size:11px;color:var(--muted)">${d.label||''}</span></div>
+        <div class="opt-desc">${d.used} usado · ${d.free} libre · ${d.pct}% lleno</div></div>
+      </div>`
+    ).join('');
+  } catch { list.innerHTML = `<div style="font-size:12px;color:var(--muted)">No se pudieron cargar los discos. Se usará C: por defecto.</div>`; }
+}
+function selectDrive(letter) {
+  selectedDrive = letter;
+  document.querySelectorAll('[id^="drv-"]').forEach(el => el.classList.remove('checked'));
+  document.getElementById('drv-'+letter)?.classList.add('checked');
+}
+function runDiskAnalyzer() { closeOpts(); runWithUrl('diskanalyzer','Disk Analyzer',`/run/diskanalyzer?drive=${selectedDrive}`); }
+
+// ── STARTUP ────────────────────────────────────────────────
+let startupFilter = 'all';
+function openStartupOpts() { document.getElementById('startup-overlay').classList.remove('hidden'); }
+function setStartupFilter(f) {
+  startupFilter = f;
+  ['all','user','system'].forEach(s => document.getElementById('sf-'+s)?.classList.toggle('checked', s===f));
+}
+function runStartup() { closeOpts(); runWithUrl('startup','Startup Manager',`/run/startup?filter=${startupFilter}`); }
+
+// ── SYSINFO ────────────────────────────────────────────────
+const SI_ALL = ['os','cpu','ram','gpu','disk','net','procs'];
+let siChecked = new Set(SI_ALL);
+function openSysInfoOpts() { document.getElementById('sysinfo-overlay').classList.remove('hidden'); }
+function toggleSI(k) {
+  siChecked.has(k) ? siChecked.delete(k) : siChecked.add(k);
+  document.getElementById('si-'+k)?.classList.toggle('checked', siChecked.has(k));
+}
+function siSelectAll()  { siChecked = new Set(SI_ALL); SI_ALL.forEach(k => document.getElementById('si-'+k)?.classList.add('checked')); }
+function siSelectNone() { siChecked = new Set();        SI_ALL.forEach(k => document.getElementById('si-'+k)?.classList.remove('checked')); }
+function runSysInfo() { closeOpts(); runWithUrl('sysinfo','System Info',`/run/sysinfo?sections=${[...siChecked].join(',')}`); }
+// ──────────────────────────────────────────────────────────
+
+function runWithUrl(id, name, url) {
+  if (src) { src.close(); src = null; }
+  const btn  = document.getElementById('btn-'  + id);
+  const card = document.getElementById('card-' + id);
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin"></div> Corriendo...';
+  card.classList.add('running');
+  document.getElementById('tb').innerHTML = '';
+  document.getElementById('tt').textContent = name;
+  document.getElementById('ts').textContent = 'en progreso';
+  document.getElementById('tw').classList.add('open');
+  src = new EventSource(url);
+  src.onmessage = e => {
+    if (e.data === '__DONE__') {
+      src.close(); src = null;
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-sliders" style="font-size:12px"></i> Opciones';
+      card.classList.remove('running');
+      document.getElementById('ts').textContent = 'completado';
+      return;
+    }
+    addLine(JSON.parse(e.data), id);
+    document.getElementById('tb').scrollTop = 9999;
+  };
+  src.onerror = () => {
+    if (src) { src.close(); src = null; }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-sliders" style="font-size:12px"></i> Opciones';
+    card.classList.remove('running');
+    document.getElementById('ts').textContent = 'error';
+  };
+}
+
+function run(id, name, zones = 'all') {
+  runWithUrl(id, name, id === 'cleaner' ? `/run/${id}?zones=${zones}` : `/run/${id}`);
+}
+
+
+function addLine(msg, toolId) {
+  const tb = document.getElementById('tb');
+  const p = msg.parts || [];
+  const div = document.createElement('div');
+
+  switch (msg.type) {
+    case 'START':
+      div.className = 'l-start';
+      div.textContent = `▶  Iniciando · ${p[0] || ''}`;
+      break;
+    case 'INFO':
+      div.className = 'l-info';
+      div.textContent = `ℹ  ${p[0] || ''}`;
+      break;
+    case 'PROGRESS':
+      div.className = 'l-progress';
+      div.textContent = `⟳  ${p[0] || ''}`;
+      break;
+
+    // --- CLEANER ---
+    case 'FOUND':
+      div.className = 'l-found';
+      div.textContent = `📁 ${p[0]}  →  ${p[1]}  (${p[2]})`;
+      break;
+    case 'FILE':
+      div.className = 'l-file';
+      div.textContent = `  ·  ${p[0]}   ${p[1] || ''}`;
+      break;
+    case 'MORE':
+      div.className = 'l-more';
+      div.textContent = `  ·  ${p[0]}`;
+      break;
+    case 'DONE':
+      div.className = 'l-done';
+      div.textContent = `✓  ${p[0]}  →  ${p[1]} liberado  (${p[2]})`;
+      break;
+    case 'CLEAN':
+      div.className = 'l-clean';
+      div.textContent = `–  ${p[0]}  →  ${p[1] || 'ya limpia'}`;
+      break;
+    case 'SKIP':
+      div.className = 'l-skip';
+      div.textContent = `⊘  ${p[0]}  (${p[1] || ''})`;
+      break;
+    case 'TOTAL':
+      div.className = 'l-total';
+      div.innerHTML = `<br>━━  Total: ${p[0]} archivos  ·  ${p[1]} MB liberados`;
+      break;
+
+    // --- ANTIMALWARE ---
+    case 'DEFENDER':
+      div.className = 'l-defender';
+      div.textContent = `🛡  ${p.join('  ·  ')}`;
+      break;
+    case 'DEFS':
+      div.className = 'l-defs';
+      div.textContent = `   ${p.join('  ·  ')}`;
+      break;
+    case 'SAFE':
+      div.className = 'l-safe';
+      div.textContent = `✔  ${p[0]}`;
+      break;
+    case 'THREAT':
+      div.className = 'l-threat';
+      div.textContent = `⚠  AMENAZA: ${p[0]}  →  ${p[1] || ''}`;
+      break;
+    case 'TOTAL_THREATS':
+      div.className = 'l-total-t';
+      div.innerHTML = `<br>━━  Amenazas encontradas: ${p[0]}`;
+      break;
+
+    // --- DISK ANALYZER ---
+    case 'DISK':
+      div.className = 'l-disk';
+      div.textContent = `💾  Disco ${p[0]}  ${p[1]}  ·  ${p[2]}  usado  ·  ${p[3]}  libre  (${p[4]})`;
+      break;
+    case 'SCANNING':
+      if (toolId === 'diskanalyzer') {
+        const pct = Math.round((parseInt(p[1]) / parseInt(p[2])) * 100);
+        div.innerHTML = `<div class="l-scanning">  analizando ${p[0]}... (${p[1]}/${p[2]})</div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>`;
+      }
+      tb.appendChild(div);
+      return;
+    case 'FOLDER':
+      div.className = 'l-folder';
+      const barW = Math.min(100, Math.round((parseInt(p[1]) / 1e10) * 100));
+      div.innerHTML = `${'█'.repeat(Math.max(1,Math.round(barW/5)))}${'░'.repeat(20 - Math.max(1,Math.round(barW/5)))}  C:\\${p[0]}  —  ${p[2]}`;
+      break;
+
+    // --- STARTUP MANAGER ---
+    case 'ITEM':
+      div.className = 'l-item';
+      const cmd = p[1] ? p[1].substring(0, 60) + (p[1].length > 60 ? '...' : '') : '';
+      div.textContent = `▸  ${p[0]}   ${cmd}`;
+      break;
+    case 'TOTAL_ITEMS':
+      div.className = 'l-items-total';
+      div.innerHTML = `<br>━━  Total entradas de inicio: ${p[0]}`;
+      break;
+
+    // --- SYSINFO ---
+    case 'OS':
+      div.className = 'l-os';
+      div.textContent = `🖥  ${p[0]}  ·  Build ${p[1]}  ·  ${p[2]}`;
+      break;
+    case 'UPTIME':
+      div.className = 'l-uptime';
+      div.textContent = `   Uptime: ${p[0]}  ·  ${p[1]}`;
+      break;
+    case 'CPU':
+      div.className = 'l-cpu';
+      div.textContent = `⚡ CPU  ${p[0]}  ·  ${p[1]}  ·  ${p[2]}`;
+      break;
+    case 'CPU_LOAD':
+      div.className = 'l-cpu-load';
+      const cl = parseInt(p[0]);
+      div.innerHTML = `   Uso: ${cl}%  ${'█'.repeat(Math.round(cl/5))}${'░'.repeat(20-Math.round(cl/5))}`;
+      break;
+    case 'RAM':
+      div.className = 'l-ram';
+      div.textContent = `🧠 RAM  ${p[0]}  total  ·  ${p[1]}  en uso  ·  ${p[2]}  libre  (${p[3]})`;
+      break;
+    case 'GPU':
+      div.className = 'l-gpu';
+      div.textContent = `🎮 GPU  ${p[0]}  ·  ${p[1]}  ·  Driver ${p[2]}`;
+      break;
+    case 'NET':
+      div.className = 'l-net';
+      div.textContent = `🌐 Red  ${p[0]}  ·  ${p[1]}  ·  ${p[2]}`;
+      break;
+    case 'IP_PUBLIC':
+      div.className = 'l-ip';
+      div.textContent = `   IP pública: ${p[0]}`;
+      break;
+    case 'PROC':
+      div.className = 'l-proc';
+      div.textContent = `  · ${p[0]}   ${p[1]}   ${p[2]}`;
+      break;
+
+    // --- GENERIC ---
+    case 'END':
+      div.className = 'l-end';
+      div.innerHTML = `<br>✔  Completado`;
+      break;
+    case 'ERROR':
+      div.className = 'l-error';
+      div.textContent = `✗  ${p[0]}`;
+      break;
+    default:
+      div.className = 'l-info';
+      div.textContent = p.join('  ');
+  }
+  tb.appendChild(div);
+}
+
+function closeTerm() {
+  document.getElementById('tw').classList.remove('open');
+}
+
+function openLog() {
+  const path = `C:\\Users\\${location.hostname}\\Scripts\\cleaner_log.txt`;
+  alert(`Log guardado en:\n${path}`);
+}
+
+init();
+</script>
+</body>
+</html>
