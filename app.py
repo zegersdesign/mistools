@@ -56,6 +56,17 @@ TOOLS = [
         'script':   os.path.join(SCRIPTS, 'SysInfoWeb.ps1'),
         'ready':    True,
     },
+    {
+        'id':       'wallpaper',
+        'name':     'Wallpaper Downloader',
+        'desc':     'Descarga todos los wallpapers de cualquier sitio web',
+        'icon':     'ti-photo-down',
+        'color':    'green',
+        'category': 'web',
+        'script':   os.path.join(SCRIPTS, 'WallpaperDownloaderWeb.js'),
+        'runner':   'node',
+        'ready':    True,
+    },
 ]
 
 ANSI = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
@@ -110,12 +121,23 @@ def run_tool(tool_id):
         ps_args = ['-Filter', request.args.get('filter', 'all')]
     elif tool_id == 'sysinfo':
         ps_args = ['-Sections', request.args.get('sections', 'os,cpu,ram,gpu,disk,net,procs')]
+    elif tool_id == 'wallpaper':
+        ps_args = [request.args.get('url', '')]
+        folder = request.args.get('folder', '')
+        if folder:
+            ps_args.append(folder)
+
+    runner = tool.get('runner', 'powershell')
 
     def generate():
         try:
+            if runner == 'node':
+                cmd = ['node', script] + ps_args
+            else:
+                cmd = ['powershell', '-ExecutionPolicy', 'Bypass',
+                       '-NonInteractive', '-File', script] + ps_args
             proc = subprocess.Popen(
-                ['powershell', '-ExecutionPolicy', 'Bypass',
-                 '-NonInteractive', '-File', script] + ps_args,
+                cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -146,7 +168,9 @@ def open_browser():
     webbrowser.open('http://localhost:7777')
 
 if __name__ == '__main__':
-    threading.Timer(1.2, open_browser).start()
-    print("\n  MisTools corriendo en http://localhost:7777")
+    PORT = int(os.environ.get('MISTOOLS_PORT', '7777'))
+    if os.environ.get('MISTOOLS_NO_BROWSER') != '1':
+        threading.Timer(1.2, lambda: webbrowser.open(f'http://localhost:{PORT}')).start()
+    print(f"\n  MisTools corriendo en http://localhost:{PORT}")
     print("  Presiona Ctrl+C para detener\n")
-    app.run(port=7777, debug=False, use_reloader=False)
+    app.run(port=PORT, debug=False, use_reloader=False)

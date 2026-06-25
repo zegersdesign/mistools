@@ -58,6 +58,7 @@ body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:
 .i-amber{background:rgba(245,158,11,.12)}.i-amber i{color:var(--amber)}
 .i-coral{background:rgba(248,113,113,.12)}.i-coral i{color:var(--coral)}
 .i-blue{background:rgba(96,165,250,.12)}.i-blue i{color:var(--blue)}
+.i-green{background:rgba(74,222,128,.12)}.i-green i{color:var(--green)}
 .card-name{font-size:13px;font-weight:600}
 .card-desc{font-size:11px;color:var(--muted);line-height:1.5;flex:1}
 .btn-run{width:100%;padding:7px 0;border-radius:7px;border:1px solid rgba(124,111,247,.4);background:rgba(124,111,247,.08);color:var(--purple);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
@@ -432,6 +433,48 @@ body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:
   </div>
 </div>
 
+<!-- WALLPAPER DOWNLOADER MODAL -->
+<div class="overlay hidden" id="wallpaper-overlay" onclick="if(event.target===this)closeOpts()">
+  <div class="opts-panel">
+    <div class="opts-head">
+      <div class="opts-head-icon" style="background:rgba(74,222,128,.12)"><i class="ti ti-photo-down" style="color:var(--green)"></i></div>
+      <div>
+        <div class="opts-head-title">Wallpaper Downloader — Opciones</div>
+        <div class="opts-head-sub">Ingresa la URL del sitio con wallpapers</div>
+      </div>
+    </div>
+    <div class="opts-body">
+      <div>
+        <div class="opts-group-label">URL del sitio</div>
+        <input type="text" id="wp-url-input" placeholder="Ej: https://wallpapercave.com/spacex-desktop-wallpapers"
+          style="width:100%;padding:8px 12px;background:var(--surf2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;outline:none;margin-bottom:4px"
+          oninput="updateWpBtn()">
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Pega cualquier URL de galería de wallpapers</div>
+      </div>
+      <div>
+        <div class="opts-group-label">Carpeta destino <span style="color:#52525b;font-weight:400">(opcional)</span></div>
+        <input type="text" id="wp-folder-input" placeholder="Ej: wallpapers_espaciales  (se auto-genera si no pones nada)"
+          style="width:100%;padding:8px 12px;background:var(--surf2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;outline:none">
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Ruta relativa a donde está corriendo MisTools</div>
+      </div>
+      <div>
+        <div class="opts-group-label">Info</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;padding:4px 0">
+          Escanea la página buscando imágenes en <strong style="color:var(--text)">&lt;img&gt;, &lt;a href&gt;, og:image, background-image</strong> y scripts embebidos.<br>
+          Omite automáticamente iconos y miniaturas <strong style="color:var(--text)">(menos de 50 KB)</strong>.<br>
+          Funciona con wallpapercave, unsplash, hdwallpapers y la mayoría de galerías.
+        </div>
+      </div>
+    </div>
+    <div class="opts-footer">
+      <button class="btn-cancel" onclick="closeOpts()">Cancelar</button>
+      <button class="btn-clean" id="btn-run-wp" style="background:var(--green);color:#000" onclick="runWallpaper()" disabled>
+        <i class="ti ti-photo-down" style="font-size:13px"></i> Descargar wallpapers
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="layout">
   <div class="sidebar">
     <div class="nav-sec">Categorías</div>
@@ -439,6 +482,7 @@ body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:
     <div class="nav-item" onclick="setFilter('sistema',this)"><i class="ti ti-cpu"></i> Sistema</div>
     <div class="nav-item" onclick="setFilter('seguridad',this)"><i class="ti ti-shield"></i> Seguridad</div>
     <div class="nav-item" onclick="setFilter('archivos',this)"><i class="ti ti-folder"></i> Archivos</div>
+    <div class="nav-item" onclick="setFilter('web',this)"><i class="ti ti-world-download"></i> Web</div>
     <div class="nav-sec" style="margin-top:6px">Más</div>
     <div class="nav-item" onclick="openLog()"><i class="ti ti-file-text"></i> Ver logs</div>
     <div class="sidebar-foot" id="sf">Cargando...</div>
@@ -495,7 +539,7 @@ function setFilter(cat, el) {
   document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
   currentFilter = cat;
-  const titles = { all:'Todas las herramientas', sistema:'Sistema', seguridad:'Seguridad', archivos:'Archivos' };
+  const titles = { all:'Todas las herramientas', sistema:'Sistema', seguridad:'Seguridad', archivos:'Archivos', web:'Web' };
   document.getElementById('cat-title').textContent = titles[cat] || cat;
   const filtered = cat === 'all' ? tools : tools.filter(t => t.category === cat);
   render(filtered);
@@ -533,6 +577,13 @@ const DETAILS = {
     ['Incluye', 'OS, CPU con carga actual, RAM usada/libre, GPU, todos los discos, adaptadores de red, IP pública y top 5 procesos.'],
     ['Cuándo usarlo', 'Para diagnosticar lentitud, ver cuánta RAM queda libre o identificar procesos pesados.'],
     ['Tiempo', 'Resultado inmediato, menos de 10 segundos.'],
+  ],
+  wallpaper: [
+    ['Qué hace', 'Escanea cualquier sitio de wallpapers y descarga todas las imágenes de alta resolución.'],
+    ['Detecta', 'Imágenes en <img>, <a href>, og:image, background-image y scripts embebidos.'],
+    ['Filtra', 'Omite automáticamente iconos y miniaturas menores a 50 KB.'],
+    ['Paginación', 'Sigue páginas adicionales (/p/2, ?page=2) automáticamente.'],
+    ['Requiere', 'Node.js instalado en el sistema (ya incluido si instalaste MisTools).'],
   ],
 };
 
@@ -572,7 +623,8 @@ function toggleDetail(id) {
 
 function openOpts(id, name) {
   const fns = { cleaner: openCleanerOpts, antimalware: openAntimalwareOpts,
-                 diskanalyzer: openDiskOpts, startup: openStartupOpts, sysinfo: openSysInfoOpts };
+                 diskanalyzer: openDiskOpts, startup: openStartupOpts, sysinfo: openSysInfoOpts,
+                 wallpaper: openWallpaperOpts };
   if (fns[id]) fns[id]();
   else run(id, name);
 }
@@ -660,6 +712,28 @@ function setStartupFilter(f) {
   ['all','user','system'].forEach(s => document.getElementById('sf-'+s)?.classList.toggle('checked', s===f));
 }
 function runStartup() { closeOpts(); runWithUrl('startup','Startup Manager',`/run/startup?filter=${startupFilter}`); }
+
+// ── WALLPAPER ──────────────────────────────────────────────
+function openWallpaperOpts() {
+  document.getElementById('wp-url-input').value = '';
+  document.getElementById('wp-folder-input').value = '';
+  document.getElementById('btn-run-wp').disabled = true;
+  document.getElementById('wallpaper-overlay').classList.remove('hidden');
+  setTimeout(() => document.getElementById('wp-url-input').focus(), 80);
+}
+function updateWpBtn() {
+  const val = document.getElementById('wp-url-input').value.trim();
+  document.getElementById('btn-run-wp').disabled = val.length < 4;
+}
+function runWallpaper() {
+  const url    = document.getElementById('wp-url-input').value.trim();
+  const folder = document.getElementById('wp-folder-input').value.trim();
+  if (!url) return;
+  closeOpts();
+  let apiUrl = `/run/wallpaper?url=${encodeURIComponent(url)}`;
+  if (folder) apiUrl += `&folder=${encodeURIComponent(folder)}`;
+  runWithUrl('wallpaper', 'Wallpaper Downloader', apiUrl);
+}
 
 // ── SYSINFO ────────────────────────────────────────────────
 const SI_ALL = ['os','cpu','ram','gpu','disk','net','procs'];
@@ -850,6 +924,39 @@ function addLine(msg, toolId) {
     case 'PROC':
       div.className = 'l-proc';
       div.textContent = `  · ${p[0]}   ${p[1]}   ${p[2]}`;
+      break;
+
+    // --- WALLPAPER DOWNLOADER ---
+    case 'WP_DEST':
+      div.className = 'l-info';
+      div.textContent = `📂 Destino: ${p[0]}`;
+      break;
+    case 'WP_FOUND':
+      div.className = 'l-found';
+      div.textContent = `🖼  Imágenes encontradas: ${p[0]}`;
+      break;
+    case 'WP_DL': {
+      const pct = Math.round((parseInt(p[0]) / parseInt(p[1])) * 100);
+      div.innerHTML = `<div class="l-scanning">  [${p[0]}/${p[1]}] ${p[2]}</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:var(--green)"></div></div>`;
+      tb.appendChild(div);
+      return;
+    }
+    case 'WP_OK':
+      div.className = 'l-done';
+      div.textContent = `  ✓  ${p[0]}`;
+      break;
+    case 'WP_SKIP':
+      div.className = 'l-skip';
+      div.textContent = `  ⊘  ${p[0]}  (miniatura)`;
+      break;
+    case 'WP_ERR':
+      div.className = 'l-error';
+      div.textContent = `  ✗  ${p[0]}  ${p[1] ? '— ' + p[1] : ''}`;
+      break;
+    case 'WP_TOTAL':
+      div.className = 'l-total';
+      div.innerHTML = `<br>━━  Descargadas: ${p[0]}  ·  Omitidas: ${p[1]}<br>📂  ${p[2]}`;
       break;
 
     // --- GENERIC ---

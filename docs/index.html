@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MisTools — Toolbox local para Windows</title>
+<meta name="description" content="MisTools: caja de herramientas local para Windows. Limpieza, antimalware, análisis de disco, inicio, info del sistema y descarga de wallpapers, todo desde el navegador.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#0f0f11; --surf:#18181b; --surf2:#1f1f23; --border:#2a2a30;
+  --text:#e4e4e7; --muted:#71717a;
+  --purple:#7c6ff7; --teal:#2dd4aa; --amber:#f59e0b; --coral:#f87171; --blue:#60a5fa; --green:#4ade80;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--purple);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:880px;margin:0 auto;padding:0 22px}
+
+header{text-align:center;padding:64px 0 40px}
+.logo{width:62px;height:62px;border-radius:15px;background:linear-gradient(135deg,var(--purple),#5b4fd6);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 30px rgba(124,111,247,.35)}
+.logo i{color:#fff;font-size:32px}
+h1{font-size:38px;font-weight:700;letter-spacing:-.02em}
+.tag{color:var(--muted);font-size:17px;margin-top:8px}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.badge{font-size:12px;color:var(--muted);background:var(--surf);border:1px solid var(--border);padding:5px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:6px}
+.badge i{font-size:14px}
+
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;transition:.15s}
+.btn-primary{background:var(--purple);color:#fff}
+.btn-primary:hover{background:#6b5ff5;text-decoration:none}
+.btn-ghost{background:var(--surf);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--surf2);text-decoration:none}
+
+section{padding:34px 0;border-top:1px solid var(--border)}
+h2{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:13px;padding:18px}
+.card-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.card-ic i{font-size:20px}
+.i-purple{background:rgba(124,111,247,.15);color:var(--purple)}
+.i-teal{background:rgba(45,212,170,.12);color:var(--teal)}
+.i-amber{background:rgba(245,158,11,.12);color:var(--amber)}
+.i-coral{background:rgba(248,113,113,.12);color:var(--coral)}
+.i-blue{background:rgba(96,165,250,.12);color:var(--blue)}
+.i-green{background:rgba(74,222,128,.12);color:var(--green)}
+.card h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.card p{font-size:13px;color:var(--muted)}
+.card .new{font-size:10px;font-weight:700;color:var(--green);background:rgba(74,222,128,.12);padding:2px 7px;border-radius:6px;margin-left:7px;vertical-align:middle}
+
+pre{background:#0a0a0d;border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;font-family:'Cascadia Code','Consolas',monospace;font-size:13px;color:#cbd5e1;line-height:1.7}
+pre .c{color:#52525b}
+ol{padding-left:20px;color:var(--muted);font-size:14px}
+ol li{margin-bottom:6px}
+ol b{color:var(--text)}
+
+.note{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:11px;padding:15px 17px;font-size:13.5px;color:#d4d4d8;display:flex;gap:11px}
+.note i{color:var(--amber);font-size:19px;flex-shrink:0;margin-top:1px}
+.note b{color:var(--text)}
+
+footer{text-align:center;padding:36px 0;color:var(--muted);font-size:13px;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="logo"><i class="ti ti-tool"></i></div>
+    <h1>MisTools</h1>
+    <p class="tag">Tu caja de herramientas local para Windows — desde el navegador.</p>
+    <div class="badges">
+      <span class="badge"><i class="ti ti-brand-windows"></i> Windows 10/11</span>
+      <span class="badge"><i class="ti ti-brand-python"></i> Flask + PowerShell + Node</span>
+      <span class="badge"><i class="ti ti-lock"></i> 100% local · sin nube</span>
+      <span class="badge"><i class="ti ti-license"></i> Código abierto</span>
+    </div>
+    <div class="cta">
+      <a class="btn btn-primary" id="repo-link" href="#"><i class="ti ti-brand-github"></i> Ver en GitHub</a>
+      <a class="btn btn-ghost" href="#instalar"><i class="ti ti-download"></i> Cómo instalar</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Herramientas incluidas</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="card-ic i-purple"><i class="ti ti-trash"></i></div>
+        <h3>ClaudeCleaner</h3>
+        <p>Limpia temporales, cache de browsers, prefetch y papelera. Libera GB en segundos.</p>
+      </div>
+      <div class="card">
+        <div class="card-ic i-teal"><i class="ti ti-shield-check"></i></div>
+        <h3>Claude Antimalware</h3>
+        <p>Escaneo rápido, completo o de carpeta con Windows Defender integrado.</p>
+      </div>
+      <div class="card">
+        <div class="card-ic i-amber"><i class="ti ti-chart-pie"></i></div>
+        <h3>Disk Analyzer</h3>
+        <p>Ranking de las carpetas más pesadas de cualquier disco, con barras visuales.</p>
+      </div>
+      <div class="card">
+        <div class="card-ic i-coral"><i class="ti ti-player-play"></i></div>
+        <h3>Startup Manager</h3>
+        <p>Lista todo lo que arranca con Windows: registro, WMI y carpetas de inicio.</p>
+      </div>
+      <div class="card">
+        <div class="card-ic i-blue"><i class="ti ti-cpu"></i></div>
+        <h3>System Info</h3>
+        <p>CPU, RAM, GPU, discos, red, IP pública y top de procesos de un vistazo.</p>
+      </div>
+      <div class="card">
+        <div class="card-ic i-green"><i class="ti ti-photo-down"></i></div>
+        <h3>Wallpaper Downloader <span class="new">NUEVO</span></h3>
+        <p>Pega la URL de cualquier galería y descarga todos los wallpapers de alta resolución.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="instalar">
+    <h2>Instalación</h2>
+    <ol>
+      <li>Clona o descarga el repositorio.</li>
+      <li>Instala dependencias: <b>Python 3.11+</b> y <b>Node.js</b> (para el Wallpaper Downloader).</li>
+      <li>Doble click en <b>iniciar.bat</b> — abre <b>localhost:7777</b> en tu navegador.</li>
+    </ol>
+    <pre><span class="c"># Clonar</span>
+git clone https://github.com/zegersdesign/mistools.git
+cd mistools
+
+<span class="c"># Instalar dependencias de Python</span>
+pip install -r requirements.txt
+
+<span class="c"># Arrancar (o doble click en iniciar.bat)</span>
+python app.py</pre>
+  </section>
+
+  <section>
+    <h2>Importante</h2>
+    <div class="note">
+      <i class="ti ti-info-circle"></i>
+      <div>
+        Esta página es la <b>vitrina del proyecto</b>. MisTools corre en <b>tu propia máquina</b>:
+        las herramientas ejecutan comandos de Windows (limpieza, Defender, análisis de disco) que
+        <b>solo tienen sentido localmente</b> y por seguridad no pueden ni deben correr en un servidor en la nube.
+        Por eso el flujo es: descargar el código desde aquí → ejecutarlo en tu PC.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Hecho por Pato · con Claude · MisTools v1.1<br>
+    <a id="repo-link2" href="#">github.com/zegersdesign/mistools</a>
+  </footer>
+
+</div>
+
+<script>
+  // Ajusta los links del repo automáticamente si el slug cambia.
+  const slug = 'zegersdesign/mistools';
+  const url = 'https://github.com/' + slug;
+  document.getElementById('repo-link').href = url;
+  document.getElementById('repo-link2').href = url;
+</script>
+</body>
+</html>
