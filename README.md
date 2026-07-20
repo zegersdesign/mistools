@@ -6,6 +6,12 @@ Personal Windows toolbox — a local web app that runs PowerShell utilities thro
 
 ---
 
+## Otras herramientas incluidas
+
+Este repo también incluye una colección de scripts y utilidades independientes en [`otras-herramientas/`](./otras-herramientas): scraper de Mercado Libre con dashboard, procesamiento batch de imágenes, conversión de assets tarot, y descarga de historial de YouTube.
+
+---
+
 ## What it does
 
 MisTools is a lightweight local web dashboard for Windows maintenance tasks. It streams real-time output from PowerShell scripts directly into a terminal panel in your browser.
